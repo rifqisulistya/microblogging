@@ -3,6 +3,7 @@ import { View, Text, Button, TextInput } from 'react-native';
 import {styles} from './StyleSheet.js';
 import { connect } from 'react-redux';
 import { StackActions, NavigationActions } from 'react-navigation';
+import axios from 'react-native-axios';
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -41,7 +42,55 @@ class HomeScreen extends React.Component {
   }
 
   handleLogin = () => {
-    if (this.state.user == 'U' && this.state.pass == 'P') {
+    if (this.state.user == '' || this.state.pass == '' ) {
+      alert('Require Input')
+    }
+    axios.get('http://192.168.0.175:8081/mongodblogin', 
+      {
+        username : this.state.user,
+        password : this.state.pass,
+      }
+    )
+    .then((response) => {
+        console.log('dataid: ',response.data._id);
+        this.setState(
+          {
+            user : response.data.username,
+            _id:response.data._id
+          }
+        );
+      alert('tambah ke mongodb')
+      })
+      .catch((error) => {
+        alert(error.message)
+        console.log(error);
+      });
+  }
+    
+    /*    axios.post('http://192.168.1.9:8081/mongodblogin',
+      {
+        username : this.state.user,
+        password : this.state.pass 
+      }
+    )
+    .then((response) => {
+        console.log('dataid: ',response.data._id);
+        this.setState(
+          {
+            username : this.state.user,
+            password : this.state.pass,
+            _id:response.data._id
+          }
+        );
+      alert('tambah ke mongodb')
+      })
+      .catch((error) => {
+        alert(error.message)
+        console.log(error);
+      });
+    }*/ 
+
+/*    if (this.state.user == 'U' && this.state.pass == 'P') {
       this.props.login(this.state.user)
       const resetAction = StackActions.reset({
         index: 0,
@@ -55,12 +104,8 @@ class HomeScreen extends React.Component {
     else if  (this.state.user != 'U' && this.state.pass == 'P') {
       alert('Wrong username')
     }
-    else {alert ('Wrong username & password')}
-  }
+    else {alert ('Wrong username & password')}*/
   
-  componentWillMount(){
-
-  }
 
   render() {
     return (
