@@ -4,9 +4,13 @@ import {styles} from './StyleSheet.js';
 import { connect } from 'react-redux';
 import { StackActions, NavigationActions } from 'react-navigation';
 import axios from 'react-native-axios';
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
+import { Button, Container, Header, Title, Content, Footer, Form, FooterTab, Item, Input, Left, Right, Body, Icon, Text } from 'native-base';
 
 class HomeScreen extends React.Component {
+  static navigationOptions = {
+    header: null
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -78,25 +82,45 @@ class HomeScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to BlogMobile App!</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="Username"
-          onChangeText={this.handleUser}
-          value={this.state.text}
-        />
-        <TextInput
-          style={styles.textInput}
-          placeholder="Password"
-          onChangeText={this.handlePass}
-          value={this.state.text}
-        />
-        <Button
-          title="Login"
-          onPress={() => this.handleLogin()}
-        />          
-      </View>
+      <Container>
+        <Header>
+          <Left>
+            <Button transparent>
+              <Icon name='home' />
+            </Button>
+          </Left>
+          <Body>
+            <Title>BlogMobile</Title>
+          </Body>
+          <Right />
+        </Header>
+        <Content>
+          <Text style={styles.welcome}>Welcome to BlogMobile App!</Text>
+          <Form>
+            <Item>
+              <Input 
+                placeholder="Username" 
+                onChangeText={this.handleUser}
+                value={this.state.text}
+              />
+            </Item>
+            <Item last>
+              <Input 
+                placeholder="Password" 
+                onChangeText={this.handlePass}
+                value={this.state.text}
+              />
+            </Item>
+          </Form>
+          <Body>
+            <Button 
+              onPress={() => this.handleLogin()}
+            >
+              <Text>Sign in</Text>
+            </Button>
+          </Body> 
+        </Content>
+      </Container>
     );
   }  
 }

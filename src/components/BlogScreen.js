@@ -7,6 +7,9 @@ import LinkPreview from 'react-native-link-preview';
 import axios from 'react-native-axios';
 
 class BlogScreen extends React.Component {
+  static navigationOptions = {
+    header: null
+  }
   
   constructor(props) {
     super(props);

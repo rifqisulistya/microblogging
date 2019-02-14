@@ -31,7 +31,8 @@ const BlogAppNavigator = createStackNavigator({
   },
 }, {
     initialRouteName: 'Blog',
-});
+} 
+);
 
 const HomeApp = createAppContainer(HomeAppNavigator);
 const BlogApp = createAppContainer(BlogAppNavigator);
