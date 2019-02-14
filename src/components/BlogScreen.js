@@ -1,16 +1,17 @@
 import React from 'react';
-import { Alert, AppRegistry, Button, Dimensions, FlatList, Image, Platform, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { Alert, AppRegistry, Dimensions, FlatList, Image, Platform, StyleSheet, TextInput, TouchableHighlight, TouchableOpacity, TouchableNativeFeedback, View } from 'react-native';
 import { styles } from './StyleSheet.js';
 import { connect } from 'react-redux';
 import { StackActions, NavigationActions } from 'react-navigation';
 import LinkPreview from 'react-native-link-preview';
 import axios from 'react-native-axios';
+import { Button, Container, Header, Title, Card, CardItem, Content, Footer, Form, FooterTab, Item, Input, Left, Right, Body, Icon, Text } from 'native-base';
 
 class BlogScreen extends React.Component {
   static navigationOptions = {
     header: null
   }
-  
+
   constructor(props) {
     super(props);
     this.state = {
@@ -40,7 +41,7 @@ class BlogScreen extends React.Component {
         }    
       )
       console.log('key:', key)
-      axios.delete('http://192.168.1.10:8081/mongodb/'+key._id)
+      axios.delete('http://192.168.1.12:8081/mongodb/'+key._id)
       .then(function (response) {
         alert(response.data)
         console.log(response);
@@ -63,7 +64,7 @@ class BlogScreen extends React.Component {
     else if (this.state.text.match(regex)) {
       LinkPreview.getPreview(this.state.text)
       .then(data => {
-        axios.post('http://192.168.1.10:8081/mongodb', 
+        axios.post('http://192.168.1.12:8081/mongodb', 
           {
             title:data.title, 
             img:data.images[0],
@@ -103,7 +104,7 @@ class BlogScreen extends React.Component {
     }
     else {
       console.log('masuk ke else')
-      axios.post('http://192.168.1.10:8081/mongodb', 
+      axios.post('http://192.168.1.12:8081/mongodb', 
         {
           title:'', 
           img:'',
@@ -163,7 +164,7 @@ class BlogScreen extends React.Component {
     else if (this.state.text.match(regex)) {
       LinkPreview.getPreview(this.state.text)
       .then(data => {
-        axios.put('http://192.168.1.10:8081/mongodb/'+_id, 
+        axios.put('http://192.168.1.12:8081/mongodb/'+_id, 
           {
             title:data.title, 
             img:data.images[0],
@@ -202,7 +203,7 @@ class BlogScreen extends React.Component {
       });
     }
     else {
-      axios.put('http://192.168.1.10:8081/mongodb/'+_id, 
+      axios.put('http://192.168.1.12:8081/mongodb/'+_id, 
           {
             title:'', 
             img:'',
@@ -244,7 +245,7 @@ class BlogScreen extends React.Component {
 
   componentDidMount () {
     console.log(this.props)
-    axios.get("http://192.168.1.10:8081/mongodb")
+    axios.get("http://192.168.1.12:8081/mongodb")
       .then (response => {
         this.setState({
           posts: response.data
@@ -258,7 +259,9 @@ class BlogScreen extends React.Component {
   renderImage = (param) => {
     if (param) {
       return (
-        <Image source={{uri:param}} style={{width:100, height:100}}/>
+        <Body>
+          <Image source={{uri:param}} style={{width:200, height:200}}/>
+        </Body>
       )
     }
   }
@@ -266,16 +269,30 @@ class BlogScreen extends React.Component {
   renderItem = (obj) => {
     return (
       <TouchableOpacity
-        style={styles.item}
         onLongPress = {() => this.handleLongPress(obj.item)}
-      > 
-        <Text style={styles.itemText}>{obj.item.post}</Text>
-        <Text style={styles.itemText}>{obj.item.title}</Text>
-        {this.renderImage(obj.item.img)}
-        <Button
-          onPress={() => this.handleHapus(obj.item)}
-          title="x"
-        />
+      >
+        <Card style={{flex: 0}}>
+          <CardItem>
+            <Body>
+              {this.renderImage(obj.item.img)}
+              <Text>
+                {obj.item.post}
+              </Text>
+              <Text>
+                {obj.item.title}
+              </Text>
+            </Body>
+          </CardItem>
+          <CardItem>
+            <Left>
+              <Button small bordered
+                onPress={() => this.handleHapus(obj.item)}
+              >
+                <Text>Delete</Text>
+              </Button>
+            </Left>
+          </CardItem>
+        </Card>
       </TouchableOpacity>
     );
   };
@@ -285,45 +302,66 @@ class BlogScreen extends React.Component {
       return (
         <Button
           onPress={() => this.handleEdit(this.state.editMode)}
-          title="Edit it!"
-        />
+          >
+        <Text>Edit it!</Text>
+        </Button>
       )  
     }
     return (
         <Button
           onPress={this.handlePost}
           title="Post it!"
-        />
+        >
+        <Text>Post it!</Text>
+        </Button>
       )
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Button
-          title="Logout"
-          onPress={() => {
-            this.props.logout()
-            const resetAction = StackActions.reset({
-              actions: [NavigationActions.navigate({ routeName: 'Home' })],
-            });
-            alert('kelewat')
-          }}
-        /> 
-        <Text style={styles.welcome}>Welcome to Blog Mobile App!</Text>
-        <TextInput
-          style={{height: 40}}
-          placeholder="Type here to post something!"
-          onChangeText={this.handleChange}
-          value={this.state.text}
-        />
-        {this.renderButton()}
-        <FlatList
-          data={this.state.posts}
-          renderItem={(dasda) => this.renderItem(dasda)}
-          keyExtractor = {(item,index) => item._id.toString()}
-        />         
-      </View>
+    return (      
+      <Container>
+        <Header>
+          <Body>
+            <Title>BlogMobile</Title>
+          </Body>
+          <Right>
+            <Button transparent
+              onPress={() => {
+                this.props.logout()
+                const resetAction = StackActions.reset({
+                  actions: [NavigationActions.navigate({ routeName: 'Home' })],
+                });
+                alert('logout')
+              }}
+            >
+              <Text>
+                Logout
+              </Text>
+            </Button> 
+          </Right>
+        </Header>
+        <Content>
+          <Form>
+            <Item>
+              <Input 
+                placeholder="Type here to post something!"
+                onChangeText={this.handleChange}
+                value={this.state.text}
+              />
+            </Item>
+          </Form>
+          <Body>
+            {this.renderButton()}
+          </Body>
+          <FlatList
+            data={this.state.posts}
+            renderItem={(dasda) => this.renderItem(dasda)}
+            keyExtractor = {(item,index) => item._id.toString()}
+          />   
+        </Content>
+      </Container>
+
+     
     );
   }  
 }

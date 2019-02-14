@@ -52,43 +52,42 @@ class HomeScreen extends React.Component {
       alert('Require Input')
     }
     console.log(this.state)
-    axios.post('http://192.168.1.10:8081/mongodblogin', 
+    axios.post('http://192.168.1.12:8081/mongodblogin', 
       {
         username : this.state.user,
         password : this.state.pass,
       }
     )
     .then((response) => {
-        console.log('dataid: ',response.data._id);
-        this.setState(
-          {
-            user : response.data.username,
-            userid : response.data._id
-          }
-        );
-      alert('login berhasil')
-      this.props.login(this.state.user, this.state.userid)
-      const resetAction = StackActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: 'Blog' })],
-      });
-      this.props.navigation.dispatch(resetAction);
-      })
-      .catch((error) => {
-        alert(error.message)
-        console.log(error);
-      });
+        if (response.data._id != null) {
+          console.log('dataid: ',response.data._id);
+          this.setState(
+            {
+              user : response.data.username,
+              userid : response.data._id
+            }
+          );
+          alert('login berhasil')
+          this.props.login(this.state.user, this.state.userid)
+          const resetAction = StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: 'Blog' })],
+          });
+          this.props.navigation.dispatch(resetAction);
+        } else {
+          alert('login gagal')
+      }
+    })
+    .catch((error) => {
+      alert(error.message)
+      console.log(error);
+    });
   }
 
   render() {
     return (
       <Container>
         <Header>
-          <Left>
-            <Button transparent>
-              <Icon name='home' />
-            </Button>
-          </Left>
           <Body>
             <Title>BlogMobile</Title>
           </Body>
