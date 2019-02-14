@@ -1,22 +1,24 @@
 import React from 'react';
-import { View, Text, Button, TextInput } from 'react-native';
+import { View, TextInput } from 'react-native';
 import {styles} from './StyleSheet.js';
 import { connect } from 'react-redux';
 import { StackActions, NavigationActions } from 'react-navigation';
 import axios from 'react-native-axios';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text } from 'native-base';
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       user: '',
+      userid: '',
       pass: '',
     };
   }
 
   componentDidMount() {
     console.log(this.props)
-    if (this.props.username == 'U'){
+    if (this.props.username){
       const resetAction = StackActions.reset({
         index: 0,
         actions: [NavigationActions.navigate({ routeName: 'Blog' })],
@@ -45,7 +47,8 @@ class HomeScreen extends React.Component {
     if (this.state.user == '' || this.state.pass == '' ) {
       alert('Require Input')
     }
-    axios.get('http://192.168.0.175:8081/mongodblogin', 
+    console.log(this.state)
+    axios.post('http://192.168.1.10:8081/mongodblogin', 
       {
         username : this.state.user,
         password : this.state.pass,
@@ -56,56 +59,22 @@ class HomeScreen extends React.Component {
         this.setState(
           {
             user : response.data.username,
-            _id:response.data._id
+            userid : response.data._id
           }
         );
-      alert('tambah ke mongodb')
+      alert('login berhasil')
+      this.props.login(this.state.user, this.state.userid)
+      const resetAction = StackActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'Blog' })],
+      });
+      this.props.navigation.dispatch(resetAction);
       })
       .catch((error) => {
         alert(error.message)
         console.log(error);
       });
   }
-    
-    /*    axios.post('http://192.168.1.9:8081/mongodblogin',
-      {
-        username : this.state.user,
-        password : this.state.pass 
-      }
-    )
-    .then((response) => {
-        console.log('dataid: ',response.data._id);
-        this.setState(
-          {
-            username : this.state.user,
-            password : this.state.pass,
-            _id:response.data._id
-          }
-        );
-      alert('tambah ke mongodb')
-      })
-      .catch((error) => {
-        alert(error.message)
-        console.log(error);
-      });
-    }*/ 
-
-/*    if (this.state.user == 'U' && this.state.pass == 'P') {
-      this.props.login(this.state.user)
-      const resetAction = StackActions.reset({
-        index: 0,
-        actions: [NavigationActions.navigate({ routeName: 'Blog' })],
-      });
-      this.props.navigation.dispatch(resetAction);
-    }
-    else if (this.state.user == 'U' && this.state.pass != 'P') {
-      alert('Wrong password')
-    }
-    else if  (this.state.user != 'U' && this.state.pass == 'P') {
-      alert('Wrong username')
-    }
-    else {alert ('Wrong username & password')}*/
-  
 
   render() {
     return (
@@ -134,15 +103,20 @@ class HomeScreen extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        username: state.username
+        username: state.username,
+        _userid: state._userid
     }
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    login: (username) => {
+    login: (username, _userid) => {
       console.log("username: ", username)
-      return dispatch({ type: 'login', payload: username})
+      console.log("_userid: ", _userid)
+      return dispatch({ type: 'login', payload: {
+        username,
+        _userid
+      }})
     }
   }
 }

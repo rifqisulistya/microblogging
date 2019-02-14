@@ -23,47 +23,50 @@ class BlogScreen extends React.Component {
   }
 
   handleHapus = (key) => {
-    var posts = this.state.posts
-    var newPost = []
-    for (i=0; i<posts.length; i++){
-      if (key != posts[i]._id){
-        newPost.push(posts[i])
+    if (this.props._userid == key._userid) {
+      var posts = this.state.posts
+      var newPost = []
+      for (i=0; i<posts.length; i++){
+        if (key._id != posts[i]._id){
+          newPost.push(posts[i])
+        }
       }
-    }
-    this.setState(
-      {
-        posts : newPost
-      }    
-    )
-    console.log('key:', key)
-    axios.delete('http://192.168.0.175:8081/mongodb/'+key)
-    .then(function (response) {
-      alert(response.data)
-      console.log(response);
+      this.setState(
+        {
+          posts : newPost
+        }    
+      )
+      console.log('key:', key)
+      axios.delete('http://192.168.1.10:8081/mongodb/'+key._id)
+      .then(function (response) {
+        alert(response.data)
+        console.log(response);
 
-    })
-    .catch(function (error) {
-      alert(error.message)
-      console.log(error);
-    }); 
-  }
-  
-  handlePress = () => {
+      })
+      .catch(function (error) {
+        alert(error.message)
+        console.log(error);
+      }); 
+    } else {
+    alert('You are not authorized to delete this post')
+    }
+  } 
+
+  handlePost = () => {
     var regex = /(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])?/;
     if (this.state.text == ""){
       alert('require input')
     }
     else if (this.state.text.match(regex)) {
-      console.log('masuk ke else if')
       LinkPreview.getPreview(this.state.text)
       .then(data => {
-        console.log('masuk ke then')
-        axios.post('http://192.168.0.175:8081/mongodb', 
+        axios.post('http://192.168.1.10:8081/mongodb', 
           {
             title:data.title, 
             img:data.images[0],
             dsc:data.description,
-            post:this.state.text
+            post:this.state.text,
+            _userid:this.props._userid
           }
         )
         .then((response) => {
@@ -78,7 +81,9 @@ class BlogScreen extends React.Component {
                   img:data.images[0],
                   dsc:data.description,
                   post:this.state.text,
-                  _id:response.data._id
+                  _id:response.data._id,
+                  _userid:this.props._userid
+                  
                 },
                 ...this.state.posts
               ],
@@ -95,12 +100,13 @@ class BlogScreen extends React.Component {
     }
     else {
       console.log('masuk ke else')
-      axios.post('http://192.168.0.175:8081/mongodb', 
+      axios.post('http://192.168.1.10:8081/mongodb', 
         {
           title:'', 
           img:'',
           dsc:'',
-          post:this.state.text
+          post:this.state.text,
+          _userid:this.props._userid
         }
       )
       .then((response) => {
@@ -114,7 +120,8 @@ class BlogScreen extends React.Component {
                 img:'',
                 dsc:'',
                 post:this.state.text,
-                _id:response.data._id
+                _id:response.data._id,
+                _userid:this.props._userid
               },
               ...this.state.posts
             ],
@@ -131,13 +138,18 @@ class BlogScreen extends React.Component {
   }
 
   handleLongPress = (item) => {
-    this.setState(
-      {
-        text: item.post,
-        editMode: item._id
-      }
-    )
-    alert(this.state.text)
+    if (this.props._userid == item._userid) {
+      this.setState(
+        {
+          text: item.post,
+          editMode: item._id
+        }
+      )
+      alert(this.state.text)
+    } 
+    else {
+      alert('You are not Authorized to edit this post')
+    }
   }
 
   handleEdit = (_id) => {
@@ -146,11 +158,9 @@ class BlogScreen extends React.Component {
       alert('require input')
     }
     else if (this.state.text.match(regex)) {
-      console.log('masuk ke else if')
       LinkPreview.getPreview(this.state.text)
       .then(data => {
-        console.log('masuk ke then')
-        axios.put('http://192.168.0.175:8081/mongodb/'+_id, 
+        axios.put('http://192.168.1.10:8081/mongodb/'+_id, 
           {
             title:data.title, 
             img:data.images[0],
@@ -189,7 +199,7 @@ class BlogScreen extends React.Component {
       });
     }
     else {
-      axios.put('http://192.168.0.175:8081/mongodb/'+_id, 
+      axios.put('http://192.168.1.10:8081/mongodb/'+_id, 
           {
             title:'', 
             img:'',
@@ -231,7 +241,7 @@ class BlogScreen extends React.Component {
 
   componentDidMount () {
     console.log(this.props)
-    axios.get("http://192.168.0.175:8081/mongodb")
+    axios.get("http://192.168.1.10:8081/mongodb")
       .then (response => {
         this.setState({
           posts: response.data
@@ -251,7 +261,6 @@ class BlogScreen extends React.Component {
   }
 
   renderItem = (obj) => {
-    console.log(obj)
     return (
       <TouchableOpacity
         style={styles.item}
@@ -261,7 +270,7 @@ class BlogScreen extends React.Component {
         <Text style={styles.itemText}>{obj.item.title}</Text>
         {this.renderImage(obj.item.img)}
         <Button
-          onPress={() => this.handleHapus(obj.item._id)}
+          onPress={() => this.handleHapus(obj.item)}
           title="x"
         />
       </TouchableOpacity>
@@ -279,7 +288,7 @@ class BlogScreen extends React.Component {
     }
     return (
         <Button
-          onPress={this.handlePress}
+          onPress={this.handlePost}
           title="Post it!"
         />
       )
@@ -295,6 +304,7 @@ class BlogScreen extends React.Component {
             const resetAction = StackActions.reset({
               actions: [NavigationActions.navigate({ routeName: 'Home' })],
             });
+            alert('kelewat')
           }}
         /> 
         <Text style={styles.welcome}>Welcome to Blog Mobile App!</Text>
@@ -317,7 +327,8 @@ class BlogScreen extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        username: state.username
+        username: state.username,
+        _userid: state._userid
     }
 }
 

@@ -44,7 +44,8 @@ const Microblogging = () => {
 }
 
 const initialState = {
-    username: ''
+    username: '',
+    _userid: ''
 }
 
 const persistConfig = {
@@ -58,9 +59,15 @@ const reducer = (state = initialState, action) => {
   switch (action.type) {
       case 'login':
           console.log('masuk login')
-          return { username: action.payload }
+          return { 
+            username: action.payload.username,
+            _userid: action.payload._userid
+          }
       case 'logout':
-          return { username: '' }
+          return { 
+            username: '', 
+            _userid: ''
+          }
       default: return state
   }
 }
