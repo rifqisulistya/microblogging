@@ -43,7 +43,7 @@ class BlogScreen extends React.Component {
       console.log('key:', key)
       axios.delete('http://192.168.1.12:8081/mongodb/'+key._id)
       .then(function (response) {
-        alert(response.data)
+        alert('Post deleted')
         console.log(response);
 
       })
@@ -260,7 +260,7 @@ class BlogScreen extends React.Component {
     if (param) {
       return (
         <Body>
-          <Image source={{uri:param}} style={{width:200, height:200}}/>
+          <Image source={{uri:param}} style={{width:350, height:200}}/>
         </Body>
       )
     }
